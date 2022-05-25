@@ -1,0 +1,11 @@
+LICENSE
+README.md
+pyproject.toml
+setup.cfg
+src/binary-trie/__init__.py
+src/binary-trie/helpers.py
+src/binary-trie/trie.py
+src/binary_trie.egg-info/PKG-INFO
+src/binary_trie.egg-info/SOURCES.txt
+src/binary_trie.egg-info/dependency_links.txt
+src/binary_trie.egg-info/top_level.txt
