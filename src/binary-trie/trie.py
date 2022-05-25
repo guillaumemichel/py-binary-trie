@@ -91,21 +91,3 @@ class Trie(object):
             nclosest += self.branch[1-int(key[len(self.key)])].nClosest(key, n-len(nclosest))
         return nclosest
 
-
-def bytes_to_bit_string(data: bytes) -> str:
-    return "".join(f'{byte:08b}' for byte in data)
-
-def int_to_bit_string(i: int, l) -> str:
-    return bytes_to_bit_string((i).to_bytes(l//8+1, 'big', signed=False))[-l:]
-
-
-nodeIDs = [int_to_bit_string(i, 4) for i in [2,3,4,6,7,9,11,13]]
-t = Trie()
-for k in nodeIDs:
-    t.add(k)
-
-print(t.find("0010"))
-
-print(t.nClosest("0100", 6))
-
-
