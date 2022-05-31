@@ -77,7 +77,7 @@ class Trie(object):
             return False
 
     # returns a list of the n closest keys in the Trie to the given key
-    def nClosest(self, key:str, n:int) -> list[str]:
+    def n_closest(self, key:str, n:int) -> list[str]:
         if self.branch[0] == self.branch[1] == None:
             # leaf of the trie
             return [self.key]
@@ -85,9 +85,9 @@ class Trie(object):
         nclosest = []
         if self.branch[int(key[len(self.key)])] is not None:
             # get n closest on the closest branch
-            nclosest += self.branch[int(key[len(self.key)])].nClosest(key, n)
+            nclosest += self.branch[int(key[len(self.key)])].n_closest(key, n)
         if len(nclosest) < n and self.branch[1-int(key[len(self.key)])] is not None:    
             # if we don't have n keys yet, get the difference from the other branch
-            nclosest += self.branch[1-int(key[len(self.key)])].nClosest(key, n-len(nclosest))
+            nclosest += self.branch[1-int(key[len(self.key)])].n_closest(key, n-len(nclosest))
         return nclosest
 

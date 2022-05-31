@@ -1,2 +1,2 @@
 from .trie import Trie
-from .helpers import bytes_to_bit_string, int_to_bit_string
+from .helpers import bytes_to_bitstring, bitstring_to_bytes, int_to_bitstring, bitstring_to_int
