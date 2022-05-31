@@ -5,6 +5,15 @@ class Trie(object):
         self.key = key # eg. "01110101"
         self.branch = [None, None]
         self.size = 0 # only counts the leaves
+
+    def __repr__(self) -> str:
+        rep = "("
+        if self.branch[0] is not None:
+            rep += self.branch[0].key + " / "
+        rep += self.key
+        if self.branch[1] is not None:
+            rep += " \ " + self.branch[1].key
+        return rep+")"
                 
     # add the provided key to the trie
     # returns True on success and False on failure (usually

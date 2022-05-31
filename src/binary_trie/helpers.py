@@ -1,5 +1,3 @@
-from math import log2
-
 def bytes_to_bitstring(data: bytes, l: int = 0) -> str:
     if l==0:
         l = 8*len(data)
@@ -13,5 +11,3 @@ def bitstring_to_int(bs: str) -> int:
 
 def bitstring_to_bytes(bs: str) -> bytes:
     return bitstring_to_int(bs).to_bytes(len(bs)//8 if len(bs)%8==0 else len(bs)//8+1, byteorder='big')
-
-print(bitstring_to_bytes("0011"))
