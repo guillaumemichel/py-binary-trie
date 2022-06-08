@@ -1,12 +1,14 @@
 
 class Trie(object):
 
-    def __init__(self, key: str=""):
+    def __init__(self, metadata=None, key: str=""):
+        self.metadata = metadata
         self.key = key # eg. "01110101"
         self.branch = [None, None]
         self.size = 0 # only counts the leaves
 
     def __repr__(self) -> str:
+        # "(branch[0].key / self.key \ branch[1].key)"
         rep = "("
         if self.branch[0] is not None:
             rep += self.branch[0].key + " / "
@@ -18,7 +20,7 @@ class Trie(object):
     # add the provided key to the trie
     # returns True on success and False on failure (usually
     # when the key is already in the trie)
-    def add(self, key: str) -> bool:
+    def add(self, key: str, metadata=None) -> bool:
         if self.branch[int(key[len(self.key)])] is not None:
             # branch already exists
             branch = self.branch[int(key[len(self.key)])]
@@ -35,7 +37,7 @@ class Trie(object):
                     #    /  \                  /   \
                     # 110  *111*     -->     1110  1111
 
-                    success = branch.add(key)
+                    success = branch.add(key=key, metadata=metadata)
             else:
                 # insert between two nodes in the trie
                 # 
@@ -52,7 +54,7 @@ class Trie(object):
                         # create mid Trie node
                         mid = Trie(key=branch.key[:i])
                         # define mid branches
-                        mid.branch[int(key[i])] = Trie(key=key)
+                        mid.branch[int(key[i])] = Trie(metadata=metadata, key=key)
                         mid.branch[1-int(key[i])] = branch
                         # set its size
                         mid.size = branch.size + 1
@@ -69,7 +71,7 @@ class Trie(object):
             #         -->       /     OR     /      -->       / \
             #                 001          001              001 110
 
-            self.branch[int(key[len(self.key)])] = Trie(key=key)
+            self.branch[int(key[len(self.key)])] = Trie(metadata=metadata, key=key)
             success=True
 
         if success:
@@ -79,7 +81,13 @@ class Trie(object):
     # returns True if key in trie and False otherwise
     def find(self, key: str) -> bool:
         if len(self.key) >= len(key):
-            return self.key == key
+            if self.key == key:
+                if self.metadata is None:
+                    return True
+                else:
+                    return self.metadata
+            else:
+                return False
         elif self.branch[int(key[len(self.key)])] is not None:
             return self.branch[int(key[len(self.key)])].find(key)
         else:
@@ -89,7 +97,10 @@ class Trie(object):
     def n_closest(self, key:str, n:int) -> list[str]:
         if self.branch[0] == self.branch[1] == None:
             # leaf of the trie
-            return [self.key]
+            if self.metadata is None:
+                return [self.key]
+            else:
+                return [self.metadata]
         
         nclosest = []
         if self.branch[int(key[len(self.key)])] is not None:
