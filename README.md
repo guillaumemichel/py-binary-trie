@@ -55,6 +55,23 @@ trie.n_closest("0001", 1) # ["0000"]
 trie.n_closest("0010", 3) # ["0010", "0011", "0000"]
 ```
 
+### Attaching metadata to Trie nodes
+
+It is possible to attach an `object` as metadata to a trie leaf node.
+
+```python
+class MyObj(object):
+    def __init__(self, key, name):
+        self.key = key
+        self.name = name
+
+obj = MyObj(int_to_bitstring(10, 4), "Node 10")
+trie.add(obj.key, obj)
+
+trie.find(obj.key).name # "Node 10"
+trie.n_closest(obj.key, 1) # [obj]
+```
+
 ### Helpers
 
 There are 4 helpers functions to facilitate the use of this implementation with keys being not only `bitstring`, but also `bytes` or `int`. These helper functions help translate `bytes` and `int` to `bitstring` and reciprocally.
