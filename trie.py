@@ -55,6 +55,7 @@ class Trie(object):
                         mid = Trie(key=branch.key[:i])
                         # define mid branches
                         mid.branch[int(key[i])] = Trie(metadata=metadata, key=key)
+                        mid.branch[int(key[i])].size = 1
                         mid.branch[1-int(key[i])] = branch
                         # set its size
                         mid.size = branch.size + 1
@@ -72,6 +73,7 @@ class Trie(object):
             #                 001          001              001 110
 
             self.branch[int(key[len(self.key)])] = Trie(metadata=metadata, key=key)
+            self.branch[int(key[len(self.key)])].size = 1
             success=True
 
         if success:
