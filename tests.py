@@ -16,13 +16,21 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(t.size, 8)
 
         self.assertTrue(t.find("0010"))
-        self.assertFalse(t.find("0001"))
-        self.assertFalse(t.find("00100"))
+        self.assertEqual(t.find("0001"), False)
+        self.assertEqual(t.find("00100"), False)
 
         self.assertEqual(t.n_closest("0010", 1), ["0010"])
         self.assertEqual(t.n_closest("0010", 3), ["0010", "0011", "0110"])
         self.assertEqual(t.n_closest("0010", 8), ["0010", "0011", "0110", "0111", "0100", "1011", "1001", "1101"])
         self.assertEqual(t.n_closest("0010", 25), ["0010", "0011", "0110", "0111", "0100", "1011", "1001", "1101"])
+
+        self.assertEqual(t.find_trie("011").size, 2)
+        self.assertEqual(t.find_trie("0110").size, 1)
+        self.assertEqual(t.find_trie("0111").size, 1)
+        self.assertEqual(t.find_trie("").size, 8)
+        self.assertEqual(t.find_trie("0").size, 5)
+        self.assertEqual(t.find_trie("001").size, 2)
+
 
     def test_simple_metadata_trie(self):
         class SimpleObj(object):
@@ -42,9 +50,9 @@ class TestStringMethods(unittest.TestCase):
 
         self.assertEqual(t.size, 8)
 
-        self.assertEquals(t.find("0010"), objs[0])
-        self.assertFalse(t.find("0001"))
-        self.assertFalse(t.find("00100"))
+        self.assertEqual(t.find("0010"), objs[0])
+        self.assertEqual(t.find("0001"), False)
+        self.assertEqual(t.find("00100"), False)
 
         self.assertEqual(t.n_closest("0010", 1), [objs[0]])
         self.assertEqual(t.n_closest("0010", 3), [objs[0], objs[1], objs[3]])
@@ -54,6 +62,12 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(t.find("0011").name, "Node 3")
         self.assertEqual(t.find("0011").key, int_to_bitstring(3, 4))
 
+        self.assertEqual(t.find_trie("011").size, 2)
+        self.assertEqual(t.find_trie("0110").size, 1)
+        self.assertEqual(t.find_trie("0111").size, 1)
+        self.assertEqual(t.find_trie("").size, 8)
+        self.assertEqual(t.find_trie("0").size, 5)
+        self.assertEqual(t.find_trie("001").size, 2)
 
 
 
