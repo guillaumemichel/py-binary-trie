@@ -1,2 +1,3 @@
 dist/*
 src/binary_trie.egg-info/*
+__pycache__/*

@@ -77,23 +77,31 @@ class Trie(object):
         if success:
             self.size+=1
         return success
-                
-    # returns True if key in trie and False otherwise
-    def find(self, key: str) -> bool:
+
+    def find_trie(self, key:str):
         if len(self.key) >= len(key):
             if self.key == key:
-                if self.metadata is None:
-                    return True
-                else:
-                    return self.metadata
+                return self
             else:
-                return False
+                return None
         elif self.branch[int(key[len(self.key)])] is not None:
-            return self.branch[int(key[len(self.key)])].find(key)
+            return self.branch[int(key[len(self.key)])].find_trie(key)
         else:
+            return None
+                
+    # returns metadata associated with the key, if the key is in the trie and has metadata
+    # True if key in trie but no metadata and False otherwise
+    def find(self, key: str) -> bool:
+        trie = self.find_trie(key)
+        if trie is None:
             return False
+        elif trie.metadata is None:
+            return trie.key
+        else:
+            return trie.metadata
 
-    # returns a list of the n closest keys in the Trie to the given key
+    # returns a list of the metadata of the n closest keys in the Trie to the given key
+    # returns a list of keys if no metadata
     def n_closest(self, key:str, n:int) -> list[str]:
         if self.branch[0] == self.branch[1] == None:
             # leaf of the trie
@@ -110,5 +118,4 @@ class Trie(object):
             # if we don't have n keys yet, get the difference from the other branch
             nclosest += self.branch[1-int(key[len(self.key)])].n_closest(key, n-len(nclosest))
         return nclosest
-
 
