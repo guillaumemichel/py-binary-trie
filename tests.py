@@ -1,13 +1,13 @@
 import unittest
 
 from trie import Trie
-from helpers import bytes_to_bitstring, bitstring_to_bytes, int_to_bitstring, bitstring_to_int
+from helpers import int_to_bitstring
+
 
 class TestStringMethods(unittest.TestCase):
-
     def test_simple_trie(self):
         t = Trie()
-        nodeIDs = [2,3,4,6,7,9,11,13]
+        nodeIDs = [2, 3, 4, 6, 7, 9, 11, 13]
         for i in nodeIDs:
             self.assertTrue(t.add(int_to_bitstring(i, 4)))
 
@@ -31,19 +31,19 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(t.find_trie("0").size, 5)
         self.assertEqual(t.find_trie("001").size, 2)
 
-
     def test_simple_metadata_trie(self):
         class SimpleObj(object):
-            def __init__(self, key, name):
+            def __init__(self, key, name, some_bool):
                 self.key = key
                 self.name = name
+                self.some_bool = some_bool
 
-        t = Trie()
-        nodeIDs = [2,3,4,6,7,9,11,13]
+        t = Trie(SimpleObj)
+        nodeIDs = [2, 3, 4, 6, 7, 9, 11, 13]
 
         objs = []
         for i in nodeIDs:
-            objs.append(SimpleObj(int_to_bitstring(i, 4),"Node "+str(i)))
+            objs.append(SimpleObj(int_to_bitstring(i, 4), "Node " + str(i), i % 3 == 0))
             self.assertTrue(t.add(int_to_bitstring(i, 4), metadata=objs[-1]))
 
         self.assertFalse(t.add(int_to_bitstring(2, 4), metadata=objs[0]))
@@ -56,8 +56,13 @@ class TestStringMethods(unittest.TestCase):
 
         self.assertEqual(t.n_closest("0010", 1), [objs[0]])
         self.assertEqual(t.n_closest("0010", 3), [objs[0], objs[1], objs[3]])
-        self.assertEqual(t.n_closest("0010", 8), [objs[0], objs[1], objs[3], objs[4], objs[2], objs[6], objs[5], objs[7]])
-        self.assertEqual(t.n_closest("0010", 25), [objs[0], objs[1], objs[3], objs[4], objs[2], objs[6], objs[5], objs[7]])
+        self.assertEqual(t.n_closest("0010", 3, predicate=lambda md: md.some_bool), [objs[1], objs[3], objs[5]])
+        self.assertEqual(
+            t.n_closest("0010", 8), [objs[0], objs[1], objs[3], objs[4], objs[2], objs[6], objs[5], objs[7]]
+        )
+        self.assertEqual(
+            t.n_closest("0010", 25), [objs[0], objs[1], objs[3], objs[4], objs[2], objs[6], objs[5], objs[7]]
+        )
 
         self.assertEqual(t.find("0011").name, "Node 3")
         self.assertEqual(t.find("0011").key, int_to_bitstring(3, 4))
@@ -70,6 +75,5 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(t.find_trie("001").size, 2)
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
