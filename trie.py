@@ -84,7 +84,7 @@ class Trie(Generic[T]):
         return success
 
     # returns the trie object matching the given key
-    # method for internal use only
+    # for internal use only
     def find_trie(self, key: str):
         if len(self.key) >= len(key):
             if self.key == key:
@@ -138,18 +138,24 @@ class Trie(Generic[T]):
     def n_closest_keys(self, key: str, n: int, predicate: Optional[Callable[[T], bool]] = None) -> List[str]:
         return [t.key for t in self.n_closest_tries(key, n, predicate)]
 
+    # returns the list of all trie leaves of a given trie node
+    # for internal use only
     def get_leaves_tries(self, predicate: Optional[Callable[[T], bool]]) -> List:
         if self.branch[0] == self.branch[1] == None:
+            # node is leaf, return itself
             if predicate is None or predicate(self.metadata):
                 return [self]
             else:
                 return []
         leaves = []
         for i in range(2):
+            # combine lists returned by right and left branches
             if self.branch[i] is not None:
                 leaves += self.branch[i].get_leaves_tries(predicate)
         return leaves
 
+    # returns as list of trie leaves matching the provided prefix
+    # for internal use only
     def match_prefix_tries(self, prefix: str, predicate: Optional[Callable[[T], bool]] = None) -> List:
         if len(self.key) >= len(prefix):
             # the target key is a prefix of self key
@@ -158,12 +164,15 @@ class Trie(Generic[T]):
             else:
                 return []
         elif self.branch[int(prefix[len(self.key)])] is not None:
+            # go down the trie to match the prefix length
             return self.branch[int(prefix[len(self.key)])].match_prefix_tries(prefix, predicate)
         else:
             return []
 
+    # returns the list of metadata of trie leaves matching the provided prefix
     def match_prefix(self, prefix: str, predicate: Optional[Callable[[T], bool]] = None) -> List[Optional[T]]:
         return [t.metadata for t in self.match_prefix_tries(prefix, predicate)]
 
+    # returns the list of keys of trie leaves matching the provided prefix
     def match_prefix_keys(self, prefix: str, predicate: Optional[Callable[[T], bool]] = None) -> List[str]:
         return [t.key for t in self.match_prefix_tries(prefix, predicate)]

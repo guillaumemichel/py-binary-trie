@@ -82,6 +82,7 @@ class TestStringMethods(unittest.TestCase):
 
         self.assertEqual(len(t.match_prefix("")), len(nodeIDs))
         self.assertEqual(t.match_prefix("00"), objs[:2])
+        self.assertEqual(t.match_prefix("00"), t.match_prefix("001"))
         self.assertEqual(t.match_prefix("0000"), [])
         self.assertEqual(t.match_prefix("0100"), [objs[2]])
         self.assertEqual(t.match_prefix("1"), objs[-3:])
