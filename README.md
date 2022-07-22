@@ -13,6 +13,8 @@ One popular representation for XOR distance is the Binary Trie. A binary brie is
 
 ![Alt text](./resources/trie.svg)
 
+Each node in the Trie can be associated with some metadata for convenience.
+
 ## Usage
 
 ### Install
@@ -44,15 +46,24 @@ The add function returns `True` on success, and `False` if the key was already i
 ### Finding keys
 The `find(key)` method returns `True` if the provided key is in the Trie, `False` otherwise.
 ```python
-trie.find("0010") # True
-trie.find("0100") # False
+trie.contains("0010") # True
+trie.contains("0100") # False
 ```
 
 ### Finding the closest keys to a target
-The `n_closest(key, n)` method returns the `n` closest keys to the provided key in the trie, according to the XOR distance. The keys are sorted according to the distance to the target key. Note that only leaves of the trie will be returned, not intermediary nodes.
+The `n_closest_keys(key, n)` method returns the `n` closest keys to the provided key in the trie, according to the XOR distance. The keys are sorted according to the distance to the target key. Note that only leaves of the trie will be returned, not intermediary nodes.
 ```python
-trie.n_closest("0001", 1) # ["0000"]
-trie.n_closest("0010", 3) # ["0010", "0011", "0000"]
+trie.n_closest_keys("0001", 1) # ["0000"]
+trie.n_closest_keys("0010", 3) # ["0010", "0011", "0000"]
+```
+
+### Prefix matching
+
+The `prefix_match_keys(prefix)` will return the list of keys of all leaves of the Trie matching the provided `prefix`.
+
+```python
+trie.prefix_match_keys("00")   # ["0000", "0010", "0011"]
+trie.prefix_match_keys("1111") # []
 ```
 
 ### Attaching metadata to Trie nodes
@@ -65,12 +76,44 @@ class MyObj(object):
         self.key = key
         self.name = name
 
+trie = Trie(MyObj)
+
 obj = MyObj(int_to_bitstring(10, 4), "Node 10")
 trie.add(obj.key, obj)
 
-trie.find(obj.key).name # "Node 10"
-trie.n_closest(obj.key, 1) # [obj]
+trie.find(obj.key).name        # "Node 10"
+trie.n_closest(obj.key, 1)     # [obj]
+trie.prefix_match(obj.key[:2]) # [obj]
 ```
+Note that the `find(key)` method is similar to the `contains(key)` method, but returns the associated `metadata` if any, instead of returning a `bool`.
+The `n_closest(key, n)` method is similar to the `n_closest_keys(key, n)` method, but returns the list of `metadata` associated with the closest keys, instead of the list of keys.
+
+
+### Predicates
+
+It is possible to assign some boolean variables to `metadata` objects, and make use of them using predicate in `n_closest()`, `n_closest_keys()`, `prefix_match()` and `prefix_match_keys()` methods to filter the results.
+
+```python
+class MyObj(object):
+    def __init__(self, key, name, some_bool):
+        self.key = key
+        self.name = name
+        self.some_bool = some_bool
+
+trie = Trie(MyObj)
+
+nodeIDs = [0, 1, 2] # ["0000", "0001", "0010"]
+for i in nodeIDs:
+    obj = MyObj(int_to_bitstring(i, 4), "Node "+str(i), i % 2 == 0)
+    trie.add(obj.key, obj)
+
+trie.n_closest_keys("0001", 2, predicate=lambda n: n.some_bool) # ["0000", "0010"] 
+trie.prefix_match_keys("000", predicate=lambda n: n.some_bool)  # ["0000"]
+
+# Note that the key "0001" matched both requests, but wasn't taken into
+# consideration as it doesn't satisfy the predicate
+```
+
 
 ### Helpers
 

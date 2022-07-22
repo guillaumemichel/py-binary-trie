@@ -83,6 +83,8 @@ class Trie(Generic[T]):
             self.size += 1
         return success
 
+    # returns the trie object matching the given key
+    # for internal use only
     def find_trie(self, key: str):
         if len(self.key) >= len(key):
             if self.key == key:
@@ -95,34 +97,82 @@ class Trie(Generic[T]):
             return None
 
     # returns metadata associated with the key, if the key is in the trie and has metadata
-    # True if key in trie but no metadata and False otherwise
-    def find(self, key: str) -> bool:
+    # returns None if no metadata or key not in trie
+    def find(self, key: str) -> Optional[T]:
         trie = self.find_trie(key)
         if trie is None:
-            return False
-        elif trie.metadata is None:
-            return trie.key
+            return None
         else:
             return trie.metadata
 
-    # returns a list of the metadata of the n closest keys in the Trie to the given key
-    # returns a list of keys if no metadata
-    def n_closest(self, key: str, n: int, predicate: Optional[Callable[[T], bool]] = None) -> List[str]:
+    # returns True if key in trie, False otherwise
+    def contains(self, key: str) -> bool:
+        trie = self.find_trie(key)
+        return not trie is None
+
+    def n_closest_tries(self, key: str, n: int, predicate: Optional[Callable[[T], bool]] = None):
         if self.branch[0] == self.branch[1] == None:
             # leaf of the trie
-            if self.metadata is None:
-                return [self.key]
-            elif predicate is None or predicate(self.metadata):
-                return [self.metadata]
+            if predicate is None or predicate(self.metadata):
+                return [self]
             else:
                 return []
 
         nclosest = []
         if self.branch[int(key[len(self.key)])] is not None:
             # get n closest on the closest branch
-            nclosest += self.branch[int(key[len(self.key)])].n_closest(key, n, predicate=predicate)
+            nclosest += self.branch[int(key[len(self.key)])].n_closest_tries(key, n, predicate=predicate)
         if len(nclosest) < n and self.branch[1 - int(key[len(self.key)])] is not None:
             # if we don't have n keys yet, get the difference from the other branch
-            nclosest += self.branch[1 - int(key[len(self.key)])].n_closest(key, n - len(nclosest), predicate=predicate)
+            nclosest += self.branch[1 - int(key[len(self.key)])].n_closest_tries(
+                key, n - len(nclosest), predicate=predicate
+            )
 
         return nclosest
+
+    # returns a list of the metadata of the n closest keys in the Trie to the given key
+    def n_closest(self, key: str, n: int, predicate: Optional[Callable[[T], bool]] = None) -> List[Optional[T]]:
+        return [t.metadata for t in self.n_closest_tries(key, n, predicate)]
+
+    # returns the n closest keys to the provided key
+    def n_closest_keys(self, key: str, n: int, predicate: Optional[Callable[[T], bool]] = None) -> List[str]:
+        return [t.key for t in self.n_closest_tries(key, n, predicate)]
+
+    # returns the list of all trie leaves of a given trie node
+    # for internal use only
+    def get_leaves_tries(self, predicate: Optional[Callable[[T], bool]]) -> List:
+        if self.branch[0] == self.branch[1] == None:
+            # node is leaf, return itself
+            if predicate is None or predicate(self.metadata):
+                return [self]
+            else:
+                return []
+        leaves = []
+        for i in range(2):
+            # combine lists returned by right and left branches
+            if self.branch[i] is not None:
+                leaves += self.branch[i].get_leaves_tries(predicate)
+        return leaves
+
+    # returns as list of trie leaves matching the provided prefix
+    # for internal use only
+    def match_prefix_tries(self, prefix: str, predicate: Optional[Callable[[T], bool]] = None) -> List:
+        if len(self.key) >= len(prefix):
+            # the target key is a prefix of self key
+            if prefix == self.key[: len(prefix)]:
+                return self.get_leaves_tries(predicate)
+            else:
+                return []
+        elif self.branch[int(prefix[len(self.key)])] is not None:
+            # go down the trie to match the prefix length
+            return self.branch[int(prefix[len(self.key)])].match_prefix_tries(prefix, predicate)
+        else:
+            return []
+
+    # returns the list of metadata of trie leaves matching the provided prefix
+    def match_prefix(self, prefix: str, predicate: Optional[Callable[[T], bool]] = None) -> List[Optional[T]]:
+        return [t.metadata for t in self.match_prefix_tries(prefix, predicate)]
+
+    # returns the list of keys of trie leaves matching the provided prefix
+    def match_prefix_keys(self, prefix: str, predicate: Optional[Callable[[T], bool]] = None) -> List[str]:
+        return [t.key for t in self.match_prefix_tries(prefix, predicate)]
