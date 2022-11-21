@@ -50,6 +50,16 @@ trie.contains("0010") # True
 trie.contains("0100") # False
 ```
 
+### Key depth
+The `depth(key)` method returns the depth of the provided key, if it is in the Trie and `-1` otherwise. The depth of a trie node is defined as the number of its direct ancestors, up to the root of the trie.
+```python
+trie.depth("0")    # 1
+trie.depth("0010") # 3
+trie.depth("0111") # 4
+trie.depth("1101") # 2
+trie.depth("11")   # -1
+```
+
 ### Finding the closest keys to a target
 The `n_closest_keys(key, n)` method returns the `n` closest keys to the provided key in the trie, according to the XOR distance. The keys are sorted according to the distance to the target key. Note that only leaves of the trie will be returned, not intermediary nodes.
 ```python
