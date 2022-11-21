@@ -4,10 +4,11 @@ T = TypeVar("T")
 
 
 class Trie(Generic[T]):
-    def __init__(self, metadata=Optional[T], key: str = ""):
+    def __init__(self, metadata=Optional[T], key: str = "", depth: int = 0):
         self.metadata = metadata
         self.key = key  # eg. "01110101"
         self.branch: List[Optional[Trie], Optional[Trie]] = [None, None]
+        self.dpt = depth
         self.size = 0  # only counts the leaves
 
     def __repr__(self) -> str:
@@ -55,11 +56,14 @@ class Trie(Generic[T]):
                         # first bit where branch.key and key diverge
 
                         # create mid Trie node
-                        mid = Trie(key=branch.key[:i])
+                        mid = Trie(key=branch.key[:i], depth=self.dpt + 1)
                         # define mid branches
-                        mid.branch[int(key[i])] = Trie(metadata=metadata, key=key)
+                        # create new trie node
+                        mid.branch[int(key[i])] = Trie(metadata=metadata, key=key, depth=self.dpt + 2)
                         mid.branch[int(key[i])].size = 1
                         mid.branch[1 - int(key[i])] = branch
+                        # update branch depth
+                        branch.incr_depth()
                         # set its size
                         mid.size = branch.size + 1
                         # update self branch to mid
@@ -75,13 +79,19 @@ class Trie(Generic[T]):
             #         -->       /     OR     /      -->       / \
             #                 001          001              001 110
 
-            self.branch[int(key[len(self.key)])] = Trie(metadata=metadata, key=key)
+            self.branch[int(key[len(self.key)])] = Trie(metadata=metadata, key=key, depth=self.dpt + 1)
             self.branch[int(key[len(self.key)])].size = 1
             success = True
 
         if success:
             self.size += 1
         return success
+
+    def incr_depth(self):
+        self.dpt += 1
+        for i in range(2):
+            if self.branch[i] is not None:
+                self.branch[i].incr_depth()
 
     # returns the trie object matching the given key
     # for internal use only
@@ -109,6 +119,13 @@ class Trie(Generic[T]):
     def contains(self, key: str) -> bool:
         trie = self.find_trie(key)
         return not trie is None
+
+    def depth(self, key: str) -> int:
+        trie = self.find_trie(key)
+        if trie is None:
+            return -1
+        else:
+            return trie.dpt
 
     def n_closest_tries(self, key: str, n: int, predicate: Optional[Callable[[T], bool]] = None):
         if self.branch[0] == self.branch[1] == None:
@@ -176,4 +193,3 @@ class Trie(Generic[T]):
     # returns the list of keys of trie leaves matching the provided prefix
     def match_prefix_keys(self, prefix: str, predicate: Optional[Callable[[T], bool]] = None) -> List[str]:
         return [t.key for t in self.match_prefix_tries(prefix, predicate)]
-

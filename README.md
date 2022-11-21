@@ -9,7 +9,7 @@ Author: [Guillaume Michel](https://github.com/guillaumemichel)
 [IPFS](https://ipfs.network) and [libp2p](https://libp2p.io/) are built upon the Kademlia DHT, which uses the XOR distance as a distance metric between keys. As explained in this [blogpost](https://metaquestions.me/2014/08/01/shortest-distance-between-two-points-is-not-always-a-straight-line/), the XOR distance is tricky to understand and represent. This distance metric is odd for it is non linear.
 For instance, $2 \oplus 3 = 1$ but $3 \oplus 4 = 7$. Ordering $N_8$ by XOR distance to 2 gives the following result: $[2,3,0,1,6,7,4,5]$
 
-One popular representation for XOR distance is the Binary Trie. A binary brie is a simple [Trie](https://en.wikipedia.org/wiki/Trie) with keyspace {$0,1$}$^n$ with $n$ being the size of the keyspace. The perfect visual representation of the XOR distance would be a N-dimensional binary trie. The example below displays a binary trie containing the keys $[2,3,4,6,7,9,11,13]$.
+One popular representation for XOR distance is the Binary Trie. A binary brie is a simple [Trie](https://en.wikipedia.org/wiki/Trie) with keyspace $\lbrace0,1\rbrace^n$ with $n$ being the size of the keyspace. The perfect visual representation of the XOR distance would be a N-dimensional binary trie. The example below displays a binary trie containing the keys $[2,3,4,6,7,9,11,13]$.
 
 ![Alt text](./resources/trie.svg)
 
@@ -48,6 +48,16 @@ The `find(key)` method returns `True` if the provided key is in the Trie, `False
 ```python
 trie.contains("0010") # True
 trie.contains("0100") # False
+```
+
+### Key depth
+The `depth(key)` method returns the depth of the provided key, if it is in the Trie and `-1` otherwise. The depth of a trie node is defined as the number of its direct ancestors, up to the root of the trie.
+```python
+trie.depth("0")    # 1
+trie.depth("0010") # 3
+trie.depth("0111") # 4
+trie.depth("1101") # 2
+trie.depth("11")   # -1
 ```
 
 ### Finding the closest keys to a target
