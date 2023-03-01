@@ -149,3 +149,44 @@ def bitstring_to_int(bs: str) -> int:
 bitstring_to_int("0110")             # 6
 bitstring_to_int("0000000000000110") # 6
 ```
+
+### Encoding
+
+The following functions help uniquely encode a specific binary prefix, that are bistrings of arbitrary size. The bitstrings can be encoded in `int` or in [`unsigned varint`](https://github.com/multiformats/unsigned-varint). The mapping goes as follow:
+```
+bitstring       code        varint
+""          ->  0       ->  00000000 (0x00)
+"0"         ->  1       ->  00000001 (0x01)
+"1"         ->  2       ->  00000010 (0x02)
+"00"        ->  3       ->  00000011 (0x03)
+...
+"0000000"   ->  127     ->  01111111 (0x7f)
+"0000001"   ->  128     ->  10000000 00000001 (0x8001)
+...
+```
+
+```python
+def encode_bitstring(bitstring: str) -> int:
+    ...
+encode_bitstring("1")       # 2
+encode_bitstring("010")     # 9
+encode_bitstring("0000001") # 128
+
+def decode_bitstring(code: int) -> str:
+    ...
+decode_bitstring(2)   # "1"
+decode_bitstring(9)   # "010"
+decode_bitstring(128) # "0000001"
+
+def bitstring_to_varint(bitstring: str) -> bytes:
+    ...
+bitstring_to_varint("1")       # b'\x02'
+bitstring_to_varint("010")     # b'\x09'
+bitstring_to_varint("0000001") # b'\x80\x01'
+
+def varint_to_bitstring(varint_bytes: bytes) -> str:
+    ...
+varint_to_bitstring(b'\x02')     # "1"
+varint_to_bitstring(b'\x09')     # "010"
+varint_to_bitstring(b'\x80\x01') # "0000001"
+```
