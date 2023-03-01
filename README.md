@@ -152,7 +152,7 @@ bitstring_to_int("0000000000000110") # 6
 
 ### Encoding
 
-The following functions help uniquely encode a specific binary prefix, that are binary bistrings of arbitrary size. The bitstrings can be encoded in `int` or in [`unsigned varint`](https://github.com/multiformats/unsigned-varint). The mapping goes as follow:
+The following functions help uniquely encode a specific binary prefix, that are bistrings of arbitrary size. The bitstrings can be encoded in `int` or in [`unsigned varint`](https://github.com/multiformats/unsigned-varint). The mapping goes as follow:
 ```
 bitstring       code        varint
 ""          ->  0       ->  00000000 (0x00)
