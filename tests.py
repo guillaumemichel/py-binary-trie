@@ -2,6 +2,7 @@ import unittest
 
 from trie import Trie
 from helpers import int_to_bitstring
+from encoding import encode_bitstring, decode_bitstring, bitstring_to_varint, varint_to_bitstring
 
 
 class TestStringMethods(unittest.TestCase):
@@ -102,6 +103,43 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(t.match_prefix("0100"), [objs[2]])
         self.assertEqual(t.match_prefix("1"), objs[-3:])
         self.assertEqual(t.match_prefix("1", predicate=lambda n: n.some_bool), [objs[-3]])
+
+    def test_encoding(self):
+        self.assertEqual(encode_bitstring(""), 0)
+        self.assertEqual(encode_bitstring("0"), 1)
+        self.assertEqual(encode_bitstring("1"), 2)
+        self.assertEqual(encode_bitstring("00"), 3)
+        self.assertEqual(encode_bitstring("01"), 4)
+        self.assertEqual(encode_bitstring("10"), 5)
+        self.assertEqual(encode_bitstring("11"), 6)
+        self.assertEqual(encode_bitstring("000"), 7)
+        self.assertEqual(encode_bitstring("0000"), 15)
+        self.assertEqual(encode_bitstring("0000000"), 127)
+        self.assertEqual(encode_bitstring("0000001"), 128)
+
+        self.assertEqual(decode_bitstring(0), "")
+        self.assertEqual(decode_bitstring(1), "0")
+        self.assertEqual(decode_bitstring(2), "1")
+        self.assertEqual(decode_bitstring(3), "00")
+        self.assertEqual(decode_bitstring(4), "01")
+        self.assertEqual(decode_bitstring(5), "10")
+        self.assertEqual(decode_bitstring(6), "11")
+        self.assertEqual(decode_bitstring(7), "000")
+        self.assertEqual(decode_bitstring(15), "0000")
+        self.assertEqual(decode_bitstring(127), "0000000")
+        self.assertEqual(decode_bitstring(128), "0000001")
+
+        for i in range(2**16):
+            self.assertEqual(encode_bitstring(decode_bitstring(i)), i)
+            self.assertEqual(decode_bitstring(encode_bitstring(int_to_bitstring(i, 16))), int_to_bitstring(i, 16))
+
+        self.assertEqual(bitstring_to_varint("0"), (1).to_bytes(1, "big"))
+        self.assertEqual(bitstring_to_varint("0000000"), (127).to_bytes(1, "big"))
+        self.assertEqual(bitstring_to_varint("0000001"), (2**15 + 1).to_bytes(2, "big"))
+
+        for i in range(2**16):
+            bs = int_to_bitstring(i, 16)
+            self.assertEqual(varint_to_bitstring(bitstring_to_varint(bs)), bs)
 
 
 if __name__ == "__main__":
