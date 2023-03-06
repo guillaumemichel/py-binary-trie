@@ -1,4 +1,4 @@
-from helpers import bitstring_to_int, int_to_bitstring
+from . import bitstring_to_int, int_to_bitstring
 import math, varint
 
 
