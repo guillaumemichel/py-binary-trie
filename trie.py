@@ -18,7 +18,7 @@ class Trie(Generic[T]):
             rep += self.branch[0].key + " / "
         rep += self.key
         if self.branch[1] is not None:
-            rep += " \ " + self.branch[1].key
+            rep += " \\ " + self.branch[1].key
         return rep + ")"
 
     # add the provided key to the trie
